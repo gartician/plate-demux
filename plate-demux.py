@@ -25,7 +25,7 @@ def parse_args():
 	parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter, description = """
 plate-demux.py demultiplexes ATAC-Seq/S3-ATAC-Seq reads performed in 96-well plates. This script assumes that a Tn5 index (e.g. an 8bp DNA barcode) tags for a specific biological sample, and that index appears in a specific position in a 96-well plate (e.g. index ACTAAGTAA in A12). By relating the index to the coordinates of a plate, this sript will demultiplex a FASTQ file of mixed samples into separate files.\n
 
-This script accepts paired FASTQ files processed with unidex () and a configuration file. The FASTQ file should contain a mix of samples, while the configuration is a table that specifies an index and its coordinates in a 96-well plate. The output is a folder that contains foward and reverse reads per individual sample.""")
+This script accepts paired FASTQ files processed with unidex () and a configuration file. The FASTQ file should contain a mix of samples, while the configuration is a table that specifies an index and its coordinates in a 96-well plate. The output is a folder that contains foward and reverse reads per individual sample. Due to potentially large input FASTQ files, plate-demux.py allows users to process the data piece-wise by loading <n> reads into memory at a time via the --buffer argument.""")
 
 	parser.add_argument(
 		"-R1",
@@ -184,8 +184,6 @@ def output_message(sample_info):
 	for s in all_samples:
 		logging.info(  "Sample {a} R1 output file: {b}".format(a = s, b = sample_info[s]["R1"])  )
 		logging.info(  "Sample {a} R2 output file: {b}".format(a = s, b = sample_info[s]["R2"])  )
-		logging.info(  "Sample {a} R1 number of reads: {b}".format(a = s, b = str(len(sample_info[s]["R1_reads"]))  ))
-		logging.info(  "Sample {a} R2 number of reads: {b}".format(a = s, b = str(len(sample_info[s]["R2_reads"]))  ))
 		logging.info(  "Sample {a} total number of reads: {b}".format(a = s, b = str(sample_info[s]["number_of_reads"])  ))
 
 def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
@@ -197,8 +195,6 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 	for s in all_samples:
 		r1 = os.path.join(outdir, s) + "_R1.fastq.gz"
 		r2 = os.path.join(outdir, s) + "_R2.fastq.gz"
-		# r1 = os.path.join(outdir, s) + "_R1.fastq"
-		# r2 = os.path.join(outdir, s) + "_R2.fastq"
 		sample_info[s]["R1"] = r1
 		sample_info[s]["R2"] = r2
 		sample_info[s]["R1_reads"] = list()
@@ -206,7 +202,7 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 		sample_info[s]["number_of_reads"] = 0
 
 	"""
-	sample_info
+	sample_info:
 		sample_1:
 			R1: outdir/sample_1_R1.fastq.gz
 			R2: outdir/sample_1_R2.fastq.gz
@@ -224,22 +220,17 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 	R1 = pysam.FastxFile(R1)
 	R2 = pysam.FastxFile(R2)
 
-	# define constants
-	read_counter = 0
-	buffer_counter = 0
-	write_counter = 0
-	dropped_reads = 0
+	# define variables
+	read_counter = 0 # 		counts number of reads processed
+	buffer_counter = 0 #	counts number of reads in memory
+	write_counter = 0 # 	counts number of writes to disk
+	dropped_reads = 0 # 	counts number of reads that do not correspond to a sample
 
 	for fw, rv in zip(R1, R2):
 
 		read_counter += 1
 		buffer_counter += 1
 
-		# test dataset
-		# if read_counter == 1_000_000 + 1:
-		# 	break
-
-		# logging info
 		if verbose:
 			if read_counter % 100_000 == 0:
 				logging.info("Processing {} reads".format(read_counter))
