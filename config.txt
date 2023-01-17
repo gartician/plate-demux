@@ -1,4 +1,4 @@
-Well Position	Row	Column	Name	Truseq_R2_SBS12_partial	Tn5_index	sample
+Well	Row	Column	Name	Truseq_R2_SBS12_partial	Tn5_index	sample
 A1	A	1	SBS12_18_UME_sci_1	CGTGTGCTCTTCCGATCT	GAACCGCG	wildtype-1
 A2	A	2	SBS12_18_UME_sci_2	CGTGTGCTCTTCCGATCT	AGGTTATA	wildtype-1
 A3	A	3	SBS12_18_UME_sci_3	CGTGTGCTCTTCCGATCT	TCATCCTT	wildtype-1
