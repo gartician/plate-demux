@@ -23,7 +23,6 @@ from collections import defaultdict
 def parse_args():
 
 	parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter, description = """
-	
 plate-demux.py demultiplexes ATAC-Seq/S3-ATAC-Seq reads performed in 96-well plates. This script assumes that a Tn5 index (e.g. an 8bp DNA barcode) tags for a specific biological sample, and that index appears in a specific position in a 96-well plate (e.g. index ACTAAGTAA in A12). By relating the index to the coordinates of a plate, this sript will demultiplex a FASTQ file of mixed samples into separate files.\n
 
 This script accepts paired FASTQ files processed with unidex () and a configuration file. The FASTQ file should contain a mix of samples, while the configuration is a table that specifies an index and its coordinates in a 96-well plate. The output is a folder that contains foward and reverse reads per individual sample.""")
@@ -43,7 +42,7 @@ This script accepts paired FASTQ files processed with unidex () and a configurat
 	parser.add_argument(
 		"-o",
 		"--outdir",
-		help = "Output directory",
+		help = "Output directory with forward and reverse reads per sample.",
 		required = True
 	)
 
@@ -66,7 +65,7 @@ This script accepts paired FASTQ files processed with unidex () and a configurat
 	parser.add_argument(
 		"-v",
 		"--verbose",
-		help = "Adjust the verbosity of the program",
+		help = "Adjust the verbosity of the program.",
 		default = False,
 		action='store_true'
 	)
@@ -98,7 +97,8 @@ def parse_indices(df):
 
 def index_length(df):
 
-	""" Get the length of Tn5 indices """
+	""" Assess uniform index length. """
+	""" If so, return the barcode length. """
 	barcode_lengths = df["Tn5_index"].apply(len)
 	if len( barcode_lengths.unique() ) == 1:
 		return int( df["Tn5_index"].apply(len).unique() )
@@ -177,21 +177,16 @@ def wipe_buffer(sample_info):
 		sample_info[s]["R2_reads"] = list()
 	return sample_info
 
-def output_message(sample_info, verbose):
+def output_message(sample_info):
 
 	all_samples = sample_info.keys()
 	
-	if verbose:
-		for s in all_samples:
-			logging.info(  "Sample {a} R1 output file: {b}".format(a = s, b = sample_info[s]["R1"])  )
-			logging.info(  "Sample {a} R2 output file: {b}".format(a = s, b = sample_info[s]["R2"])  )
-			logging.info(  "Sample {a} R1 number of reads: {b}".format(a = s, b = str(len(sample_info[s]["R1_reads"]))  ))
-			logging.info(  "Sample {a} R2 number of reads: {b}".format(a = s, b = str(len(sample_info[s]["R2_reads"]))  ))
-			logging.info(  "Sample {a} total number of reads: {b}".format(a = s, b = str(sample_info[s]["number_of_reads"])  ))
-
-	logging.info("Completed barcode splitting.")
-	logging.info("Total reads processed: {}".format(read_counter))
-	logging.info("Total reads with no matching tn5 index: {}".format(dropped_reads))
+	for s in all_samples:
+		logging.info(  "Sample {a} R1 output file: {b}".format(a = s, b = sample_info[s]["R1"])  )
+		logging.info(  "Sample {a} R2 output file: {b}".format(a = s, b = sample_info[s]["R2"])  )
+		logging.info(  "Sample {a} R1 number of reads: {b}".format(a = s, b = str(len(sample_info[s]["R1_reads"]))  ))
+		logging.info(  "Sample {a} R2 number of reads: {b}".format(a = s, b = str(len(sample_info[s]["R2_reads"]))  ))
+		logging.info(  "Sample {a} total number of reads: {b}".format(a = s, b = str(sample_info[s]["number_of_reads"])  ))
 
 def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 
@@ -277,9 +272,7 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 				write_counter += 1
 				buffer_counter = 0
 
-	# EOF
-
-	# if in buffered mode and if there are reads left in the buffer,
+	# If ran in buffered mode and if there are reads left in the buffer,
 	# append the reads to the sample outfile one last time.
 	if buffer_size != None:
 		if leftover_reads(sample_info):
@@ -292,8 +285,13 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 		write_reads(sample_info, write_counter = 0) # 0 means writing in 'bulk' mode
 
 	# print summary information
-	logging.info("Exporting read split summary")
-	output_message(sample_info, verbose)
+	if verbose:
+		output_message(sample_info)
+
+	logging.info("Samples demultiplexed.")
+	logging.info("Total reads processed: {}".format(read_counter))
+	logging.info("Total reads with no matching tn5 index: {}".format(dropped_reads))
+
 	return None
 
 def main():
@@ -309,8 +307,6 @@ def main():
 
 	tn5_len = index_length(df)
 
-	# what if buffer > number of reads?
-
 	parse_reads(
 		R1 = args.R1,
 		R2 = args.R2,
@@ -322,7 +318,7 @@ def main():
 		verbose = args.verbose
 	)
 
-	logging.info("PCR plate split complete.")
+	logging.info("plate-demux.py complete.")
 
 
 if __name__ == "__main__":
