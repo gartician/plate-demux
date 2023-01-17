@@ -22,7 +22,11 @@ from collections import defaultdict
 
 def parse_args():
 
-	parser = argparse.ArgumentParser(description = "Split atac seq pcr plate based on tn5 indices")
+	parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter, description = """
+	
+plate-demux.py demultiplexes ATAC-Seq/S3-ATAC-Seq reads performed in 96-well plates. This script assumes that a Tn5 index (e.g. an 8bp DNA barcode) tags for a specific biological sample, and that index appears in a specific position in a 96-well plate (e.g. index ACTAAGTAA in A12). By relating the index to the coordinates of a plate, this sript will demultiplex a FASTQ file of mixed samples into separate files.\n
+
+This script accepts paired FASTQ files processed with unidex () and a configuration file. The FASTQ file should contain a mix of samples, while the configuration is a table that specifies an index and its coordinates in a 96-well plate. The output is a folder that contains foward and reverse reads per individual sample.""")
 
 	parser.add_argument(
 		"-R1",
