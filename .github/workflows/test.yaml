@@ -17,7 +17,8 @@ jobs:
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        environment-file: envs/plate-demux.yaml
+        environment-file: ../envs/plate-demux.yaml
+      run: pwd
 
     - name: Demultiplex example files
       run: python plate-demux.py -R1 test-data/mixed-samples-R1.fastq.gz -R2 test-data/mixed-samples-R2.fastq.gz -c config.txt -o output-data --verbose
