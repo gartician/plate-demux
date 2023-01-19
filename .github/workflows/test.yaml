@@ -45,7 +45,7 @@ jobs:
       run: |
         conda init bash
         source ~/.bashrc
-        source activate plate-demux
+        conda activate plate-demux
         conda info
         conda list
 
