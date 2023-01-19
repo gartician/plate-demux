@@ -34,7 +34,8 @@ optional arguments:
   -c CONFIG, --config CONFIG
                         File containing tn5 indices, well positions, and biological samples.
   -b BUFFER, --buffer BUFFER
-                        Maximum number of reads to load into memory. The program generally requires approximately 1GB of memory per 1M reads.
+                        Maximum number of reads to load into memory. The program generally
+                        requires approximately 1GB of memory per 1M reads.
   -v, --verbose         Adjust the verbosity of the program.
 ```
 
