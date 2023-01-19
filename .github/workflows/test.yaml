@@ -27,7 +27,7 @@ jobs:
       run: |
         conda init bash
         source ~/.bashrc
-        source activate snakemake
+        source activate plate-demux
         conda info
         conda list
 
