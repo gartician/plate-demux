@@ -12,9 +12,18 @@ Demultiplex combinatorial indexing sequencing data (e.g. S3-ATAC-Seq) performed 
 ```
 usage: plate-demux.py [-h] -R1 R1 -R2 R2 -o OUTDIR -c CONFIG [-b BUFFER] [-v]
 
-plate-demux.py demultiplexes ATAC-Seq/S3-ATAC-Seq reads performed in 96-well plates. This script assumes that a Tn5 index (e.g. an 8bp DNA barcode) tags for a specific biological sample, and that index appears in a specific position in a 96-well plate (e.g. index ACTAAGTAA in A12). By relating the index to the coordinates of a plate, this sript will demultiplex a FASTQ file of mixed samples into separate files.
+plate-demux.py demultiplexes ATAC-Seq/S3-ATAC-Seq reads performed in 96-well plates.
+This script assumes that a Tn5 index (e.g. an 8bp DNA barcode) tags for a specific
+biological sample, and that index appears in a specific position in a 96-well plate
+(e.g. index ACTAAGTAA in A12). By relating the index to the coordinates of a plate,
+this sript will demultiplex a FASTQ file of mixed samples into separate files.
 
-This script accepts paired FASTQ files processed with unidex () and a configuration file. The FASTQ file should contain a mix of samples, while the configuration is a table that specifies an index and its coordinates in a 96-well plate. The output is a folder that contains foward and reverse reads per individual sample. Due to potentially large input FASTQ files, plate-demux.py allows users to process the data piece-wise by loading <n> reads into memory at a time via the --buffer argument.
+This script accepts paired FASTQ files processed with unidex () and a configuration file.
+The FASTQ file should contain a mix of samples, while the configuration is a table
+that specifies an index and its coordinates in a 96-well plate. The output is a folder
+that contains foward and reverse reads per individual sample. Due to potentially large
+input FASTQ files, plate-demux.py allows users to process the data piece-wise by
+loading <n> reads into memory at a time via the --buffer argument.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -33,10 +42,19 @@ optional arguments:
 
 ```bash
 # bulk demux = load input FASTQs into memory
-python plate-demux.py -R1 test-data/mixed-samples-R1.fastq.gz -R2 test-data/mixed-samples-R2.fastq.gz -c config.txt -o output-data
+python plate-demux.py \
+  -R1 test-data/mixed-samples-R1.fastq.gz \
+  -R2 test-data/mixed-samples-R2.fastq.gz \
+  -c config.txt \
+  -o output-data
 
 # piece-wise demux = load <n> reads into memory, export, and repeat.
-python plate-demux.py -R1 test-data/mixed-samples-R1.fastq.gz -R2 test-data/mixed-samples-R2.fastq.gz -c config.txt -o output-data -b 100000
+python plate-demux.py \
+  -R1 test-data/mixed-samples-R1.fastq.gz \
+  -R2 test-data/mixed-samples-R2.fastq.gz \
+  -c config.txt \
+  -o output-data \
+  -b 100000
 ```
 
 # Input
@@ -89,7 +107,11 @@ D12     D       12      SBS12_18_UME_sci_48     CGTGTGCTCTTCCGATCT      AAGTCCAA
 The output of this program is a folder that contains forward and reverse reads for every biological sample specified in the `config.txt`. Below contains the example output of this script:
 
 ```bash
-$ python plate-demux.py -R1 test-data/mixed-samples-R1.fastq.gz -R2 test-data/mixed-samples-R2.fastq.gz -c config.txt -o output-data
+$ python plate-demux.py \
+  -R1 test-data/mixed-samples-R1.fastq.gz \
+  -R2 test-data/mixed-samples-R2.fastq.gz \
+  -c config.txt \
+  -o output-data
 
 $ tree output-data
 output-data/
