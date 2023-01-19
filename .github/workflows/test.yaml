@@ -12,15 +12,34 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    defaults:
+
+      run:
+
+        shell: bash -el {0}
+
     steps:
 
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Cache conda
+      uses: actions/cache@v2
+      env:
+        CACHE_NUMBER: 0
+      with:
+        path: ~/conda_pkgs_dir
+        key:
+          ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+          hashFiles('envs/plate-demux.yaml') }}
+
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
+        activate-environment: plate-demux
         environment-file: envs/plate-demux.yaml
+        auto-activate-base: false
+        use-only-tar-bz2: true
 
     - name: Activate conda environment
       run: |
