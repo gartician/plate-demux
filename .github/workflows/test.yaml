@@ -50,6 +50,4 @@ jobs:
         conda list
 
     - name: Demultiplex example files
-      run: |
-        conda activate plate-demux
-        python plate-demux.py -R1 test-data/mixed-samples-R1.fastq.gz -R2 test-data/mixed-samples-R2.fastq.gz -c config.txt -o output-data --verbose
+      run: python plate-demux.py -R1 test-data/mixed-samples-R1.fastq.gz -R2 test-data/mixed-samples-R2.fastq.gz -c config.txt -o output-data --verbose
