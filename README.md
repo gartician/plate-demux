@@ -1,5 +1,10 @@
 # plate-demux
 
+[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
+![example workflow](https://github.com/gartician/plate-demux/actions/workflows/test.yaml/badge.svg)
+[![python minimum](https://img.shields.io/badge/python->=3-<COLOR>.svg)](https://shields.io/)
+![Maintainer](https://img.shields.io/badge/maintainer-gartician-blue)
+
 Demultiplex combinatorial indexing sequencing data (e.g. S3-ATAC-Seq) performed in 96-well plates.
 
 # Usage
@@ -64,7 +69,6 @@ NOTE: Due to potentially large input FASTQ files, plate-demux.py allows users to
 The configuration file `config.txt` must contain a "Tn5_index" and "sample" column. The program will associate an index to a sample, and a sample can use multiple Tn5 indices. In the example files, two biological samples were sequenced where wildtype-1 utilized columns 1-6 and mutant-1 were in columns 7-12. While the well positions are not explicitly used to demultiplex samples, the `config.txt` file provides a clear annotation for bench and computational scientists to unambiguously identify samples.
 
 ```
-
 Well   Row     Column  Name    Truseq_R2_SBS12_partial Tn5_index       sample
 D1      D       1       SBS12_18_UME_sci_37     CGTGTGCTCTTCCGATCT      ATGTAAGT        wildtype-1
 D2      D       2       SBS12_18_UME_sci_38     CGTGTGCTCTTCCGATCT      GCACGGAC        wildtype-1
@@ -93,7 +97,6 @@ output-data/
 ├── mutant-1_R2.fastq.gz
 ├── wildtype-1_R1.fastq.gz
 └── wildtype-1_R2.fastq.gz
-
 ```
 
 # References

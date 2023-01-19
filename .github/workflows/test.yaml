@@ -1,4 +1,4 @@
-name: test
+name: plate-demux-test
 
 on:
   push:
