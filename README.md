@@ -1,6 +1,5 @@
 # plate-demux
 
-[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
 ![example workflow](https://github.com/gartician/plate-demux/actions/workflows/test.yaml/badge.svg)
 [![python minimum](https://img.shields.io/badge/python->=3-<COLOR>.svg)](https://shields.io/)
 ![Maintainer](https://img.shields.io/badge/maintainer-gartician-blue)
