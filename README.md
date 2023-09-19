@@ -46,7 +46,8 @@ python plate-demux.py \
   -R1 test-data/mixed-samples-R1.fastq.gz \
   -R2 test-data/mixed-samples-R2.fastq.gz \
   -c config.txt \
-  -o output-data
+  -o output-data \
+  --verbose
 
 # piece-wise demux = load <n> reads into memory, export, and repeat.
 python plate-demux.py \
@@ -54,7 +55,8 @@ python plate-demux.py \
   -R2 test-data/mixed-samples-R2.fastq.gz \
   -c config.txt \
   -o output-data \
-  -b 100000
+  -b 100000 \
+  --verbose
 ```
 
 # Input

@@ -2,10 +2,13 @@
 
 """
 Demultiplex S3-ATAC-Seq data using plates.
+
 Input: paired-end FASTQ files
 Input: config file of well positions, tn5 indices, and biological samples used
 Output: forward and reverse reads at the biological sample level in FASTQ format.
+
 Code was inspired by James Adler
+
 This program uses a nested dictionary to keep track of reads per sample.
 To prevent excessive RAM usage (~ 1GB RAM/1M reads), this program stores reads in a buffer
 that gets written to file periodically (user-defined).
@@ -13,7 +16,6 @@ that gets written to file periodically (user-defined).
 
 import os
 import argparse
-import sys
 import logging
 import pandas as pd
 import pysam
@@ -74,13 +76,13 @@ This script accepts paired FASTQ files processed with unidex () and a configurat
 	return args
 
 
-def read_indices(index_file):
+def read_indices(index_file: str) -> pd.DataFrame:
 	logging.info("Extracting indices from {}".format(index_file))
 	df = pd.read_table(index_file)
 	return df
 
 
-def parse_indices(df):
+def parse_indices(df: pd.DataFrame) -> dict:
 
 	""" Associate each biological sample with a Tn5 index. """
 
@@ -95,7 +97,7 @@ def parse_indices(df):
 
 	return tn5_dict
 
-def index_length(df):
+def index_length(df: pd.DataFrame) -> int:
 
 	""" Assess uniform index length. """
 	""" If so, return the barcode length. """
@@ -106,7 +108,7 @@ def index_length(df):
 		logging.info("Length of Tn5 indices not uniform")
 		os.exit()
 
-def write_reads(sample_info, write_counter):
+def write_reads(sample_info: dict, write_counter: int):
 
 	"""
 	Write reads to designated output file defined by the nested dict `sample_info`.
@@ -154,7 +156,7 @@ def write_reads(sample_info, write_counter):
 		r1_out.close()
 		r2_out.close()
 
-def leftover_reads(sample_info):
+def leftover_reads(sample_info: dict) -> bool:
 	# check if there are reads left in the buffer.
 	# if any sample contains > 0 read, return True
 	all_samples = list(sample_info.keys())
@@ -169,7 +171,7 @@ def leftover_reads(sample_info):
 	else:
 		return(False)
 
-def wipe_buffer(sample_info):
+def wipe_buffer(sample_info: dict) -> dict:
 	# remove all read contents in sample_info
 	all_samples = list(sample_info.keys())
 	for s in all_samples:
@@ -177,7 +179,7 @@ def wipe_buffer(sample_info):
 		sample_info[s]["R2_reads"] = list()
 	return sample_info
 
-def output_message(sample_info):
+def output_message(sample_info: dict):
 
 	all_samples = sample_info.keys()
 	
@@ -186,7 +188,16 @@ def output_message(sample_info):
 		logging.info(  "Sample {a} R2 output file: {b}".format(a = s, b = sample_info[s]["R2"])  )
 		logging.info(  "Sample {a} total number of reads: {b}".format(a = s, b = str(sample_info[s]["number_of_reads"])  ))
 
-def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
+def parse_reads(
+		R1: str,
+		R2: str,
+		outdir: str,
+		buffer_limit: int,
+		tn5_dict: dict,
+		tn5_len: int,
+		df: pd.DataFrame,
+		verbose: bool
+	):
 
 	all_samples = list( tn5_dict.keys() )
 
@@ -249,8 +260,8 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 			dropped_reads += 1
 
 		# write and reset reads buffer
-		if buffer_size != None:
-			if buffer_counter == buffer_size:
+		if buffer_limit != None:
+			if buffer_counter == buffer_limit:
 
 				# write the reads to each sample
 				write_reads(sample_info, write_counter)
@@ -265,7 +276,7 @@ def parse_reads(R1, R2, outdir, buffer_size, tn5_dict, tn5_len, df, verbose):
 
 	# If ran in buffered mode and if there are reads left in the buffer,
 	# append the reads to the sample outfile one last time.
-	if buffer_size != None:
+	if buffer_limit != None:
 		if leftover_reads(sample_info):
 			logging.info("Writing results to file for the last time.")
 			write_reads(sample_info, write_counter = write_counter)
@@ -302,7 +313,7 @@ def main():
 		R1 = args.R1,
 		R2 = args.R2,
 		outdir = args.outdir,
-		buffer_size = args.buffer,
+		buffer_limit = args.buffer,
 		tn5_dict = tn5_dict,
 		tn5_len = tn5_len,
 		df = df,
